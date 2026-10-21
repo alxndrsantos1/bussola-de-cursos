@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bússola de Cursos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: uma "folha de respostas" centralizada; uma pergunta por vez, marcação estilo gabarito; resultado em ficha */
+:root{
+  --bg:#eef3f6; --paper:#ffffff; --ink:#14232e; --muted:#5b6f7c; --line:#cfdbe3;
+  --accent:#1f5f8b; --mark:#ffd33d; --mark-ink:#14232e; --soft:#e2ecf2;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f171d; --paper:#17232c; --ink:#e6eef3; --muted:#93a8b6; --line:#2a3b47;
+  --accent:#7cb8e0; --mark:#f2c623; --mark-ink:#14232e; --soft:#1f2f3a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f171d; --paper:#17232c; --ink:#e6eef3; --muted:#93a8b6; --line:#2a3b47;
+  --accent:#7cb8e0; --mark:#f2c623; --mark-ink:#14232e; --soft:#1f2f3a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:680px;margin:0 auto;display:grid;gap:20px}
+header{display:grid;gap:6px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,7vw,44px);line-height:1.05;margin:0;text-wrap:balance}
+h1 span{background:linear-gradient(transparent 58%,var(--mark) 58%);padding:0 .1em;color:inherit}
+.lede{color:var(--muted);margin:0;max-width:60ch}
+.sheet{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:22px;display:grid;gap:18px}
+.progress{display:flex;align-items:center;gap:12px;font-variant-numeric:tabular-nums;font-size:14px;color:var(--muted)}
+.bar{flex:1;height:6px;background:var(--soft);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(21px,4.6vw,26px);line-height:1.2;margin:0;text-wrap:balance}
+.opts{display:grid;gap:10px}
+.opt{display:flex;gap:14px;align-items:center;text-align:left;width:100%;font:inherit;color:var(--ink);
+  background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:13px 14px;cursor:pointer;transition:border-color .15s,background .15s}
+.opt:hover{border-color:var(--accent)}
+.opt:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.bubble{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--muted);display:grid;place-items:center;
+  font-family:var(--display);font-weight:700;font-size:14px;color:var(--muted)}
+.opt.sel{border-color:var(--ink);background:var(--soft)}
+.opt.sel .bubble{background:var(--mark);border-color:var(--mark);color:var(--mark-ink)}
+.nav{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+button.btn{font:inherit;font-weight:700;border-radius:10px;padding:11px 18px;cursor:pointer;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
+button.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+button.btn:disabled{opacity:.4;cursor:not-allowed}
+button.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.name{display:grid;gap:6px}
+.name label{font-size:13px;font-weight:700;color:var(--muted)}
+.name input{font:inherit;padding:11px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
+.name input:focus{outline:3px solid var(--accent);outline-offset:1px}
+.result-head{display:grid;gap:4px}
+.result-head p{margin:0;color:var(--muted)}
+.scores{display:grid;gap:9px}
+.score{display:grid;grid-template-columns:minmax(0,1fr) 46px;gap:4px 10px;align-items:center;font-size:14px}
+.score .track{grid-column:1 / -1;height:10px;background:var(--soft);border-radius:99px;overflow:hidden}
+.score .track i{display:block;height:100%;background:var(--muted);border-radius:99px}
+.score.top .track i{background:var(--accent)}
+.score b{font-variant-numeric:tabular-nums;text-align:right}
+.area{border-top:1px solid var(--line);padding-top:16px;display:grid;gap:10px}
+.area h3{font-family:var(--display);font-size:22px;margin:0;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.tag{font-family:var(--body);font-size:12px;letter-spacing:.08em;text-transform:uppercase;background:var(--mark);color:var(--mark-ink);padding:2px 8px;border-radius:4px;font-weight:700}
+.area p{margin:0;max-width:62ch}
+.inst{display:grid;gap:8px}
+.inst div{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px;font-size:15px}
+.inst dt{font-weight:700;color:var(--accent)}
+.inst dd{margin:0}
+.talk{background:var(--soft);border-radius:10px;padding:14px 16px;display:grid;gap:6px}
+.talk strong{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.talk ul{margin:0;padding-left:20px;display:grid;gap:4px}
+.fine{font-size:13px;color:var(--muted);margin:0}
+@media (max-width:460px){.inst div{grid-template-columns:minmax(0,1fr);gap:0}.sheet{padding:18px}}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Provão Paulista · escolha até 27/11</div>
+    <h1>Bússola de <span>Cursos</span></h1>
+    <p class="lede">12 perguntas rápidas. Não existe resposta certa: marque a opção que mais tem a ver com você, mesmo que nenhuma seja perfeita.</p>
+  </header>
+
+  <section class="sheet" id="sheet" aria-live="polite"></section>
+
+  <p class="fine">Este teste é um ponto de partida para conversa, não um diagnóstico. Os cursos citados são exemplos; a oferta muda por campus e cidade, então confira tudo no Portal de Escolhas do Provão Paulista.</p>
+</div>
+
+<script>
+const AREAS = {
+  T:{nome:"Tecnologia e computação", desc:"Você se interessa por entender como as coisas funcionam por dentro e gosta de resolver problemas com lógica. Programar, montar sistemas e lidar com dados tende a te prender.",
+     cursos:{"Fatec":"Análise e Desenvolvimento de Sistemas, Desenvolvimento de Software Multiplataforma, Ciência de Dados, Segurança da Informação, Jogos Digitais","Univesp":"Bacharelado em Tecnologia da Informação, Engenharia de Computação","USP · Unesp · Unicamp":"Ciência da Computação, Sistemas de Informação, Engenharia de Computação"}},
+  E:{nome:"Engenharia e indústria", desc:"Você gosta de construir, consertar e ver coisas físicas funcionando. Cálculo e máquinas não te assustam, e você curte melhorar processos.",
+     cursos:{"Fatec":"Mecatrônica Industrial, Automação Industrial, Manufatura Avançada, Processos Químicos","Univesp":"Engenharia de Produção","USP · Unesp · Unicamp":"Engenharias (Civil, Mecânica, Elétrica, Química), Física, Química"}},
+  S:{nome:"Saúde, natureza e ciências da vida", desc:"Você se importa com o cuidado das pessoas, dos animais ou do meio ambiente, e tem curiosidade pelo corpo humano, plantas e bichos.",
+     cursos:{"Fatec":"Agronegócio, Gestão Ambiental, Alimentos","USP · Unesp · Unicamp":"Enfermagem, Biologia, Nutrição, Farmácia, Educação Física, Agronomia, Medicina Veterinária"}},
+  G:{nome:"Gestão, negócios e logística", desc:"Você tem jeito para organizar, planejar e tomar decisões. Dinheiro, vendas e fazer uma equipe ou empresa andar te interessam.",
+     cursos:{"Fatec":"Gestão Empresarial, Logística, Gestão de Recursos Humanos, Comércio Exterior, Gestão Financeira","Univesp":"Engenharia de Produção","USP · Unesp · Unicamp":"Administração, Economia, Ciências Contábeis"}},
+  H:{nome:"Educação, sociedade e direito", desc:"Você gosta de pessoas, de conversar, ensinar e debater. Justiça, comportamento humano e a forma como a sociedade funciona chamam sua atenção.",
+     cursos:{"Univesp":"Pedagogia, Letras, Licenciatura em Matemática","USP · Unesp · Unicamp":"Direito, Psicologia, História, Geografia, Ciências Sociais, Serviço Social, Letras"}},
+  C:{nome:"Comunicação, artes e design", desc:"Você se expressa criando: desenho, vídeo, música, texto ou redes sociais. Estética e ideias novas fazem diferença pra você.",
+     cursos:{"Fatec":"Design de Produto, Eventos, Gastronomia, Jogos Digitais","USP · Unesp · Unicamp":"Jornalismo, Publicidade, Artes Visuais, Música, Design, Arquitetura e Urbanismo"}}
+};
+
+const Q = [
+ ["Num sábado livre, o que você faria sem ver o tempo passar?",[["Mexer no celular ou PC pra descobrir truques, apps e jogos","T"],["Desmontar ou consertar alguma coisa em casa","E"],["Cuidar de plantas, de um animal ou de alguém","S"],["Vender algo ou organizar um rolê com a galera","G"]]],
+ ["Qual matéria da escola você aguenta melhor?",[["História, Sociologia ou Filosofia","H"],["Artes ou Português (redação)","C"],["Matemática ou Física","E"],["Biologia ou Química","S"]]],
+ ["Num trabalho em grupo, você normalmente é quem…",[["Divide as tarefas e cobra o prazo","G"],["Faz os slides e deixa tudo bonito","C"],["Explica o conteúdo para quem não entendeu","H"],["Resolve a parte técnica ou de pesquisa","T"]]],
+ ["Qual problema você gostaria de ajudar a resolver?",[["Gente sem atendimento de saúde","S"],["Empresas que desperdiçam tempo e dinheiro","G"],["Golpes e ataques na internet","T"],["Desigualdade e falta de direitos","H"]]],
+ ["Que tipo de vídeo te prende?",[["Como as coisas são fabricadas","E"],["Bastidores de filme, clipe ou animação","C"],["Curiosidades sobre corpo humano e animais","S"],["Debate, notícia ou documentário","H"]]],
+ ["Qual ambiente de trabalho combina mais com você?",[["Escritório, com reuniões e metas","G"],["Fábrica, obra ou laboratório","E"],["Na frente de um computador, com fone","T"],["Estúdio criativo ou trabalho freelancer","C"]]],
+ ["Seu celular quebrou. Qual é a sua reação?",[["Assisto tutorial e tento arrumar sozinho","E"],["Procuro o melhor preço pra trocar","G"],["Penso em como recuperar os arquivos e configurações","T"],["Aproveito pra desconectar um pouco","S"]]],
+ ["O que mais te deixaria orgulhoso daqui a 10 anos?",[["Ter criado algo que muita gente usa","T"],["Ter ajudado a mudar a vida de alguém","H"],["Ter um trabalho meu reconhecido pelo estilo","C"],["Ter meu próprio negócio","G"]]],
+ ["Qual dessas tarefas você faria hoje, sem preguiça?",[["Escrever um texto ou roteiro","C"],["Calcular quanto material vai numa reforma","E"],["Montar uma planilha de gastos","G"],["Fazer um curativo ou acompanhar alguém no médico","S"]]],
+ ["Na escola, o que te chamava atenção?",[["Laboratório de informática","T"],["Feira de ciências","S"],["Grêmio, debates e assembleias","H"],["Apresentações, teatro ou música","C"]]],
+ ["Como você prefere aprender?",[["Fazendo na prática, com a mão na massa","E"],["Conversando e trocando ideia","H"],["Testando sozinho até dar certo","T"],["Vendo exemplos reais do mercado","G"]]],
+ ["Se você ganhasse uma bolsa para um curso livre, escolheria…",[["Primeiros socorros ou cuidador","S"],["Fotografia, edição de vídeo ou ilustração","C"],["Libras ou oratória","H"],["Robótica ou eletrônica","E"]]]
+];
+
+const sheet = document.getElementById('sheet');
+let i = -1, answers = [], nome = "";
+
+function el(tag, attrs={}, html=""){const e=document.createElement(tag);Object.assign(e,attrs);if(html)e.innerHTML=html;return e;}
+
+function start(){
+  sheet.innerHTML="";
+  const h=el('h2',{},"Antes de começar");
+  const n=el('div',{className:'name'});
+  n.append(el('label',{htmlFor:'nome'},"Seu primeiro nome (opcional)"));
+  const inp=el('input',{id:'nome',type:'text',autocomplete:'off',placeholder:'Ex.: Ana',value:nome});
+  n.append(inp);
+  const nav=el('div',{className:'nav'});
+  const go=el('button',{className:'btn primary',type:'button'},"Começar o teste");
+  go.onclick=()=>{nome=inp.value.trim();i=0;answers=[];render();};
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')go.click();});
+  nav.append(el('span'),go);
+  sheet.append(h,n,nav);
+}
+
+function render(){
+  sheet.innerHTML="";
+  const p=el('div',{className:'progress'});
+  p.innerHTML=`<span>${i+1} de ${Q.length}</span><div class="bar"><i style="width:${(i)/Q.length*100}%"></i></div>`;
+  const [txt,opts]=Q[i];
+  const h=el('h2',{},txt);
+  const box=el('div',{className:'opts',role:'radiogroup'});
+  opts.forEach(([t,a],k)=>{
+    const b=el('button',{type:'button',className:'opt'+(answers[i]===a?' sel':'')});
+    b.setAttribute('role','radio');b.setAttribute('aria-checked',answers[i]===a);
+    b.innerHTML=`<span class="bubble">${"ABCD"[k]}</span><span>${t}</span>`;
+    b.onclick=()=>{answers[i]=a;setTimeout(next,180);[...box.children].forEach(c=>c.classList.remove('sel'));b.classList.add('sel');};
+    box.append(b);
+  });
+  const nav=el('div',{className:'nav'});
+  const back=el('button',{className:'btn',type:'button'},"← Voltar");
+  back.onclick=()=>{if(i>0){i--;render();}else start();};
+  nav.append(back);
+  sheet.append(p,h,box,nav);
+  sheet.querySelector('.opt')?.focus({preventScroll:true});
+}
+
+function next(){ if(i<Q.length-1){i++;render();} else result(); }
+
+function result(){
+  const count={T:0,E:0,S:0,G:0,H:0,C:0};
+  answers.forEach(a=>count[a]++);
+  const max={};Object.keys(count).forEach(k=>max[k]=Q.filter(q=>q[1].some(o=>o[1]===k)).length);
+  const rank=Object.keys(count).map(k=>({k,p:Math.round(count[k]/max[k]*100)})).sort((a,b)=>b.p-a.p);
+  const top=rank.slice(0,2);
+  sheet.innerHTML="";
+  const head=el('div',{className:'result-head'});
+  head.innerHTML=`<div class="eyebrow">Resultado${nome?" de "+nome.replace(/[<>&]/g,""):""}</div><h2>Suas áreas de maior afinidade</h2><p>A barra mostra quanto você escolheu cada área sempre que ela apareceu como opção.</p>`;
+  const sc=el('div',{className:'scores'});
+  rank.forEach((r,idx)=>{
+    const d=el('div',{className:'score'+(idx<2?' top':'')});
+    d.innerHTML=`<span>${AREAS[r.k].nome}</span><b>${r.p}%</b><div class="track"><i style="width:${r.p}%"></i></div>`;
+    sc.append(d);
+  });
+  sheet.append(head,sc);
+  top.forEach((r,idx)=>{
+    const A=AREAS[r.k];
+    const s=el('div',{className:'area'});
+    let dl=`<dl class="inst">`;
+    for(const [inst,c] of Object.entries(A.cursos)) dl+=`<div><dt>${inst}</dt><dd>${c}</dd></div>`;
+    dl+=`</dl>`;
+    s.innerHTML=`<h3>${A.nome}<span class="tag">${idx===0?"1ª afinidade":"2ª afinidade"}</span></h3><p>${A.desc}</p>${dl}`;
+    sheet.append(s);
+  });
+  const talk=el('div',{className:'talk'});
+  talk.innerHTML=`<strong>Para conversar com o professor</strong><ul>
+    <li>Algum desses cursos te surpreendeu? Qual você nunca tinha ouvido falar?</li>
+    <li>Você prefere um curso mais curto e prático (tecnólogo, Fatec) ou um bacharelado mais longo?</li>
+    <li>Consegue estudar presencial, ou o EAD da Univesp encaixa melhor na sua rotina?</li>
+    <li>Qual campus fica viável pra você ir todo dia?</li></ul>`;
+  sheet.append(talk);
+  const nav=el('div',{className:'nav'});
+  const again=el('button',{className:'btn',type:'button'},"Refazer");
+  again.onclick=()=>{i=0;answers=[];render();};
+  const nextS=el('button',{className:'btn primary',type:'button'},"Próximo aluno");
+  nextS.onclick=()=>{nome="";i=-1;answers=[];start();window.scrollTo({top:0});};
+  nav.append(again,nextS);
+  sheet.append(nav);
+}
+start();
+</script>
+</body>
+</html>
