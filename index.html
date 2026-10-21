@@ -71,10 +71,27 @@ button.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .talk{background:var(--soft);border-radius:10px;padding:14px 16px;display:grid;gap:6px}
 .talk strong{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .talk ul{margin:0;padding-left:20px;display:grid;gap:4px}
+.tie-note{margin:0;color:var(--muted)}
+.tie-note strong{color:var(--ink)}
 .fine{font-size:13px;color:var(--muted);margin:0}
 @media (max-width:460px){.inst div{grid-template-columns:minmax(0,1fr);gap:0}.sheet{padding:18px}}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
 </style>
+<script>
+/* Contador de acessos (GoatCounter). Preencha com o código da sua conta,
+   ex.: "bussola-de-cursos" para https://bussola-de-cursos.goatcounter.com */
+const GOATCOUNTER_CODE = "";
+if (GOATCOUNTER_CODE) {
+  const gc = document.createElement('script');
+  gc.async = true;
+  gc.src = 'https://gc.zgo.at/count.js';
+  gc.dataset.goatcounter = 'https://' + GOATCOUNTER_CODE + '.goatcounter.com/count';
+  document.head.append(gc);
+}
+function contar(path, title){
+  try { window.goatcounter && window.goatcounter.count && window.goatcounter.count({path, title, event:true}); } catch(e){}
+}
+</script>
 </head>
 <body>
 
@@ -121,8 +138,69 @@ const Q = [
  ["Se você ganhasse uma bolsa para um curso livre, escolheria…",[["Primeiros socorros ou cuidador","S"],["Fotografia, edição de vídeo ou ilustração","C"],["Libras ou oratória","H"],["Robótica ou eletrônica","E"]]]
 ];
 
+const TB = [
+ ["Se você tivesse que escolher só uma destas rotinas de trabalho, qual seria?",
+  {T:"Passar o dia criando e testando programas",E:"Projetar e acompanhar máquinas ou uma obra",S:"Cuidar da saúde de pessoas, animais ou do ambiente",G:"Organizar equipes, metas e o dinheiro de uma empresa",H:"Ensinar, orientar ou defender os direitos das pessoas",C:"Criar imagens, vídeos, textos ou produtos"}],
+ ["Última pergunta: qual destas frases mais parece com você?",
+  {T:"Gosto de entender a lógica por trás das coisas",E:"Gosto de ver o resultado físico do que eu faço",S:"Fico bem quando cuido de algo vivo",G:"Gosto de colocar ordem e fazer acontecer",H:"Gosto de gente e de conversar",C:"Gosto de me expressar e criar coisas novas"}]
+];
+const MAX = {};
+Object.keys(AREAS).forEach(k => MAX[k] = Q.filter(q => q[1].some(o => o[1] === k)).length);
+
 const sheet = document.getElementById('sheet');
-let i = -1, answers = [], nome = "";
+let i = -1, answers = [], tb = [], nome = "";
+
+function ranking(){
+  const count = {}, bonus = {};
+  Object.keys(AREAS).forEach(k => { count[k] = 0; bonus[k] = 0; });
+  answers.forEach(a => count[a]++);
+  tb.forEach((a, r) => bonus[a] += TB.length - r); /* 1º desempate pesa mais que o 2º */
+  return Object.keys(AREAS)
+    .map(k => ({k, p: Math.round(count[k] / MAX[k] * 100), b: bonus[k]}))
+    .sort((x, y) => y.p - x.p || y.b - x.b);
+}
+/* Empate que muda o resultado: na 1ª posição ou na disputa pela 2ª */
+function grupoEmpatado(r){
+  const igual = (x, y) => x.p === y.p && x.b === y.b;
+  if (igual(r[0], r[1])) return r.filter(x => igual(x, r[0])).map(x => x.k);
+  if (igual(r[1], r[2])) return r.filter(x => igual(x, r[1])).map(x => x.k);
+  return null;
+}
+function listaNomes(ks){
+  const n = ks.map(k => "<strong>" + AREAS[k].nome + "</strong>");
+  return n.length > 1 ? n.slice(0, -1).join(", ") + " e " + n[n.length - 1] : n[0];
+}
+function checarEmpate(){
+  const g = grupoEmpatado(ranking());
+  if (g && tb.length < TB.length) renderDesempate(g); else result();
+}
+function renderDesempate(g){
+  const rodada = tb.length;
+  const [txt, frases] = TB[rodada];
+  sheet.innerHTML = "";
+  const p = el('div', {className:'progress'});
+  p.innerHTML = '<span>Desempate</span><div class="bar"><i style="width:100%"></i></div>';
+  const nota = el('p', {className:'tie-note'}, "Deu empate entre " + listaNomes(g) + ". Mais uma pergunta pra decidir:");
+  const h = el('h2', {}, txt);
+  const box = el('div', {className:'opts', role:'radiogroup'});
+  g.forEach((k, idx) => {
+    const b = el('button', {type:'button', className:'opt'});
+    b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', 'false');
+    b.innerHTML = '<span class="bubble">' + "ABCDEF"[idx] + '</span><span>' + frases[k] + '</span>';
+    b.onclick = () => {
+      tb[rodada] = k; tb.length = rodada + 1;
+      [...box.children].forEach(c => c.classList.remove('sel')); b.classList.add('sel');
+      setTimeout(checarEmpate, 180);
+    };
+    box.append(b);
+  });
+  const nav = el('div', {className:'nav'});
+  const back = el('button', {className:'btn', type:'button'}, "← Voltar");
+  back.onclick = () => { tb = []; i = Q.length - 1; render(); };
+  nav.append(back);
+  sheet.append(p, nota, h, box, nav);
+  sheet.querySelector('.opt')?.focus({preventScroll:true});
+}
 
 function el(tag, attrs={}, html=""){const e=document.createElement(tag);Object.assign(e,attrs);if(html)e.innerHTML=html;return e;}
 
@@ -135,7 +213,7 @@ function start(){
   n.append(inp);
   const nav=el('div',{className:'nav'});
   const go=el('button',{className:'btn primary',type:'button'},"Começar o teste");
-  go.onclick=()=>{nome=inp.value.trim();i=0;answers=[];render();};
+  go.onclick=()=>{nome=inp.value.trim();i=0;answers=[];tb=[];contar('teste-iniciado','Teste iniciado');render();};
   inp.addEventListener('keydown',e=>{if(e.key==='Enter')go.click();});
   nav.append(el('span'),go);
   sheet.append(h,n,nav);
@@ -163,17 +241,16 @@ function render(){
   sheet.querySelector('.opt')?.focus({preventScroll:true});
 }
 
-function next(){ if(i<Q.length-1){i++;render();} else result(); }
+function next(){ if(i<Q.length-1){i++;render();} else { tb=[]; checarEmpate(); } }
 
 function result(){
-  const count={T:0,E:0,S:0,G:0,H:0,C:0};
-  answers.forEach(a=>count[a]++);
-  const max={};Object.keys(count).forEach(k=>max[k]=Q.filter(q=>q[1].some(o=>o[1]===k)).length);
-  const rank=Object.keys(count).map(k=>({k,p:Math.round(count[k]/max[k]*100)})).sort((a,b)=>b.p-a.p);
+  const rank=ranking();
   const top=rank.slice(0,2);
+  contar('teste-concluido','Teste concluído');
+  contar('area/'+top[0].k,'1ª afinidade: '+AREAS[top[0].k].nome);
   sheet.innerHTML="";
   const head=el('div',{className:'result-head'});
-  head.innerHTML=`<div class="eyebrow">Resultado${nome?" de "+nome.replace(/[<>&]/g,""):""}</div><h2>Suas áreas de maior afinidade</h2><p>A barra mostra quanto você escolheu cada área sempre que ela apareceu como opção.</p>`;
+  head.innerHTML=`<div class="eyebrow">Resultado${nome?" de "+nome.replace(/[<>&]/g,""):""}</div><h2>Suas áreas de maior afinidade</h2><p>A barra mostra quanto você escolheu cada área sempre que ela apareceu como opção.${tb.length?" Teve empate, e a ordem foi decidida pelas perguntas de desempate.":""}</p>`;
   const sc=el('div',{className:'scores'});
   rank.forEach((r,idx)=>{
     const d=el('div',{className:'score'+(idx<2?' top':'')});
@@ -199,9 +276,9 @@ function result(){
   sheet.append(talk);
   const nav=el('div',{className:'nav'});
   const again=el('button',{className:'btn',type:'button'},"Refazer");
-  again.onclick=()=>{i=0;answers=[];render();};
+  again.onclick=()=>{i=0;answers=[];tb=[];render();};
   const nextS=el('button',{className:'btn primary',type:'button'},"Próximo aluno");
-  nextS.onclick=()=>{nome="";i=-1;answers=[];start();window.scrollTo({top:0});};
+  nextS.onclick=()=>{nome="";i=-1;answers=[];tb=[];start();window.scrollTo({top:0});};
   nav.append(again,nextS);
   sheet.append(nav);
 }
