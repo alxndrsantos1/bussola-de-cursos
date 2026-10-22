@@ -81,6 +81,7 @@ button.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .share{display:grid;gap:10px;border-top:1px solid var(--line);padding-top:16px}
 .share-row{display:flex;gap:10px;flex-wrap:wrap}
 a.btn{font-weight:700;border-radius:10px;padding:11px 18px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);text-decoration:none;display:inline-block}
+a.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--paper)}
 a.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .share-msg{margin:0;font-size:14px;color:var(--accent);font-weight:700;min-height:1.3em}
 .types{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:4px 22px}
@@ -92,6 +93,21 @@ a.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .type .dur{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .type p{margin:0;font-size:15px}
 .types-note{margin:0 0 18px;font-size:14px;color:var(--muted)}
+.mode{display:grid;gap:8px}
+.mode-label{font-size:13px;font-weight:700;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:14px;line-height:1.3;border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:99px;padding:5px 12px;cursor:pointer;text-align:left}
+.chip:hover{border-color:var(--accent)}
+.chip:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.chip[aria-pressed="true"]{background:var(--mark);border-color:var(--mark);color:var(--mark-ink)}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.course-info{background:var(--soft);border-radius:10px;padding:12px 14px;margin:0;font-size:15px}
+.portal{display:grid;gap:10px;border:1.5px solid var(--ink);border-radius:12px;padding:16px}
+.portal p{margin:0}
+.portal p small{color:var(--muted);font-size:13px}
+.card-out{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.card-out img{width:150px;max-width:100%;border-radius:10px;border:1px solid var(--line)}
+.card-out .share-row{flex-direction:column;align-items:flex-start}
 @media (max-width:620px){.types-grid{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:460px){.inst div{grid-template-columns:minmax(0,1fr);gap:0}.sheet{padding:18px}}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
@@ -161,7 +177,7 @@ const AREAS = {
   T:{nome:"Tecnologia e computação", desc:"Você se interessa por entender como as coisas funcionam por dentro e gosta de resolver problemas com lógica. Programar, montar sistemas e lidar com dados tende a te prender.",
      cursos:{"Fatec":"Análise e Desenvolvimento de Sistemas, Desenvolvimento de Software Multiplataforma, Ciência de Dados, Segurança da Informação, Jogos Digitais","Univesp":"Bacharelado em Tecnologia da Informação, Engenharia de Computação","USP · Unesp · Unicamp":"Ciência da Computação, Sistemas de Informação, Engenharia de Computação"}},
   E:{nome:"Engenharia e indústria", desc:"Você gosta de construir, consertar e ver coisas físicas funcionando. Cálculo e máquinas não te assustam, e você curte melhorar processos.",
-     cursos:{"Fatec":"Mecatrônica Industrial, Automação Industrial, Manufatura Avançada, Processos Químicos","Univesp":"Engenharia de Produção","USP · Unesp · Unicamp":"Engenharias (Civil, Mecânica, Elétrica, Química), Física, Química"}},
+     cursos:{"Fatec":"Mecatrônica Industrial, Automação Industrial, Manufatura Avançada, Processos Químicos","Univesp":"Engenharia de Produção","USP · Unesp · Unicamp":"Engenharia Civil, Engenharia Mecânica, Engenharia Elétrica, Engenharia Química, Física, Química"}},
   S:{nome:"Saúde, natureza e ciências da vida", desc:"Você se importa com o cuidado das pessoas, dos animais ou do meio ambiente, e tem curiosidade pelo corpo humano, plantas e bichos.",
      cursos:{"Fatec":"Agronegócio, Gestão Ambiental, Alimentos","USP · Unesp · Unicamp":"Enfermagem, Biologia, Nutrição, Farmácia, Educação Física, Agronomia, Medicina Veterinária"}},
   G:{nome:"Gestão, negócios e logística", desc:"Você tem jeito para organizar, planejar e tomar decisões. Dinheiro, vendas e fazer uma equipe ou empresa andar te interessam.",
@@ -172,7 +188,7 @@ const AREAS = {
      cursos:{"Fatec":"Design de Produto, Eventos, Gastronomia, Jogos Digitais","USP · Unesp · Unicamp":"Jornalismo, Publicidade, Artes Visuais, Música, Design, Arquitetura e Urbanismo"}}
 };
 
-const Q = [
+const Q_EM = [
  ["Num sábado livre, o que você faria sem ver o tempo passar?",[["Mexer no celular ou PC pra descobrir truques, apps e jogos","T"],["Desmontar ou consertar alguma coisa em casa","E"],["Cuidar de plantas, de um animal ou de alguém","S"],["Vender algo ou organizar um rolê com a galera","G"]]],
  ["Qual matéria da escola você aguenta melhor?",[["História, Sociologia ou Filosofia","H"],["Artes ou Português (redação)","C"],["Matemática ou Física","E"],["Biologia ou Química","S"]]],
  ["Num trabalho em grupo, você normalmente é quem…",[["Divide as tarefas e cobra o prazo","G"],["Faz os slides e deixa tudo bonito","C"],["Explica o conteúdo para quem não entendeu","H"],["Resolve a parte técnica ou de pesquisa","T"]]],
@@ -186,6 +202,84 @@ const Q = [
  ["Como você prefere aprender?",[["Fazendo na prática, com a mão na massa","E"],["Conversando e trocando ideia","H"],["Testando sozinho até dar certo","T"],["Vendo exemplos reais do mercado","G"]]],
  ["Se você ganhasse uma bolsa para um curso livre, escolheria…",[["Primeiros socorros ou cuidador","S"],["Fotografia, edição de vídeo ou ilustração","C"],["Libras ou oratória","H"],["Robótica ou eletrônica","E"]]]
 ];
+
+const Q_EJA = [
+ ["No seu dia a dia, o que você faz com gosto?",[["Ajudar a família com celular, apps e internet","T"],["Fazer pequenos reparos e consertos em casa","E"],["Cuidar de alguém, de plantas ou de animais","S"],["Controlar as contas e organizar o orçamento","G"]]],
+ ["Em qual destes assuntos você se sente mais à vontade?",[["Direitos, leis e o que acontece na sociedade","H"],["Escrever, desenhar ou criar coisas","C"],["Contas, medidas e cálculos","E"],["Saúde, remédios e alimentação","S"]]],
+ ["No trabalho ou em casa, você costuma ser quem…",[["Organiza a escala e as tarefas de todo mundo","G"],["Cuida da apresentação, da vitrine ou das redes sociais","C"],["Ensina os novatos e ajuda a resolver conflitos","H"],["Resolve os problemas do computador e do sistema","T"]]],
+ ["Qual problema você gostaria de ajudar a resolver?",[["Fila e falta de atendimento na saúde","S"],["Pequenos negócios que fecham por falta de gestão","G"],["Golpes pelo celular e pela internet","T"],["Pessoas que não conhecem os próprios direitos","H"]]],
+ ["Que tipo de conteúdo faz você parar para assistir?",[["Como funcionam máquinas, obras e fábricas","E"],["Receitas, artesanato, decoração ou música","C"],["Dicas de saúde e cuidados com o corpo","S"],["Notícias, entrevistas e debates","H"]]],
+ ["Se pudesse mudar de trabalho, onde gostaria de estar?",[["Num escritório, cuidando de compras, estoque ou finanças","G"],["Numa indústria, obra ou oficina","E"],["Num setor de informática ou suporte técnico","T"],["Num ateliê, cozinha profissional ou agência","C"]]],
+ ["Quando algo quebra em casa, você…",[["Pega as ferramentas e tenta arrumar","E"],["Pesquisa preços e chama o profissional certo","G"],["Pesquisa na internet até entender o defeito","T"],["Pensa primeiro se alguém pode se machucar","S"]]],
+ ["O que te daria mais orgulho daqui a alguns anos?",[["Trabalhar com tecnologia, área que tem muita vaga","T"],["Ajudar as pessoas da minha comunidade","H"],["Ter meu trabalho criativo reconhecido","C"],["Abrir ou fazer crescer meu próprio negócio","G"]]],
+ ["Qual destas tarefas você faria sem reclamar?",[["Planejar a decoração de uma festa","C"],["Calcular o material de uma reforma","E"],["Controlar as entradas e saídas de um caixa","G"],["Acompanhar alguém numa consulta ou tratamento","S"]]],
+ ["Nas aulas da EJA, o que mais chama sua atenção?",[["As atividades que usam computador","T"],["Ciências e o corpo humano","S"],["As conversas sobre sociedade e história","H"],["Artes, leitura e redação","C"]]],
+ ["Como você aprende melhor?",[["Vendo alguém fazer e repetindo na prática","E"],["Conversando e trocando experiência","H"],["Mexendo sozinho até descobrir","T"],["Com exemplos do mundo do trabalho","G"]]],
+ ["Se ganhasse um curso rápido de graça, qual faria?",[["Cuidador de idosos ou primeiros socorros","S"],["Confeitaria, fotografia ou design","C"],["Libras ou mediação de conflitos","H"],["Elétrica residencial ou mecânica","E"]]]
+];
+let modo = 'em';
+let Q = Q_EM;
+
+const PORTAL_URL = 'https://provaopaulistaseriado.vunesp.com.br/aluno';
+
+const INFO = {
+ "Análise e Desenvolvimento de Sistemas":"Cria e mantém sistemas, sites e aplicativos: entende o que o cliente precisa, programa, testa e corrige.",
+ "Desenvolvimento de Software Multiplataforma":"Programa aplicativos que rodam no celular, na web e no computador, do visual ao banco de dados.",
+ "Ciência de Dados":"Organiza e analisa grandes volumes de dados para encontrar padrões e ajudar empresas a decidir. Usa programação e estatística.",
+ "Segurança da Informação":"Protege sistemas e redes contra ataques e vazamentos, procura falhas e cria regras de segurança.",
+ "Jogos Digitais":"Participa da criação de games: programação, roteiro, design de fases e arte.",
+ "Bacharelado em Tecnologia da Informação":"Formação ampla em computação, com programação, redes e gestão de sistemas. Na Univesp, a maior parte do curso é a distância.",
+ "Engenharia de Computação":"Une programação e eletrônica: projeta computadores, circuitos, sistemas embarcados e software.",
+ "Ciência da Computação":"Estuda a base da computação, como algoritmos, matemática e programação, para criar software e pesquisar tecnologias novas.",
+ "Sistemas de Informação":"Usa tecnologia para resolver problemas de empresas, juntando programação, banco de dados e gestão.",
+ "Mecatrônica Industrial":"Trabalha com máquinas que unem mecânica, eletrônica e programação, como robôs e linhas de produção automáticas.",
+ "Automação Industrial":"Programa e mantém os sistemas que fazem máquinas e processos de fábrica funcionarem sozinhos.",
+ "Manufatura Avançada":"Cuida de fábricas modernas, com robôs, sensores e produção conectada, a chamada indústria 4.0.",
+ "Processos Químicos":"Acompanha a produção em indústrias químicas, de cosméticos ou de alimentos, controlando qualidade e segurança.",
+ "Engenharia de Produção":"Organiza a produção para gastar menos e produzir melhor: custos, qualidade, logística e equipes.",
+ "Engenharia Civil":"Projeta e acompanha obras como casas, prédios, pontes e estradas.",
+ "Engenharia Mecânica":"Projeta máquinas, motores e equipamentos e cuida da manutenção deles.",
+ "Engenharia Elétrica":"Trabalha com energia, instalações elétricas, eletrônica e sistemas de controle.",
+ "Engenharia Química":"Transforma matérias-primas em produtos em escala industrial, como combustíveis, plásticos e alimentos.",
+ "Física":"Estuda as leis da natureza, da energia ao universo. Pode seguir pesquisa, trabalhar na indústria ou dar aula.",
+ "Química":"Estuda as substâncias e suas reações. Trabalha em laboratórios, indústrias e controle de qualidade.",
+ "Agronegócio":"Gerencia a produção no campo e o caminho dela até o mercado: planejamento, custos e vendas.",
+ "Gestão Ambiental":"Ajuda empresas e governos a reduzir impactos no meio ambiente, cuidando de licenças, resíduos e recursos naturais.",
+ "Alimentos":"Acompanha a produção de alimentos na indústria, com foco em qualidade, higiene e conservação.",
+ "Enfermagem":"Cuida diretamente de pacientes em hospitais, postos de saúde e em casa, aplicando tratamentos e orientando famílias.",
+ "Biologia":"Estuda os seres vivos e o ambiente. Atua em pesquisa, laboratórios, meio ambiente ou dando aula.",
+ "Nutrição":"Orienta a alimentação de pessoas, hospitais, escolas e atletas para promover saúde.",
+ "Farmácia":"Trabalha com medicamentos: orienta o uso na farmácia, faz exames de laboratório e atua na indústria.",
+ "Educação Física":"Orienta exercícios para saúde e esporte em academias, clubes e escolas.",
+ "Agronomia":"Cuida da produção agrícola: solo, plantio, controle de pragas e tecnologia no campo.",
+ "Medicina Veterinária":"Cuida da saúde de animais de estimação, de criação e silvestres.",
+ "Gestão Empresarial":"Prepara para administrar empresas: finanças, pessoas, vendas e planejamento.",
+ "Logística":"Planeja como os produtos são guardados, transportados e entregues no prazo e com menor custo.",
+ "Gestão de Recursos Humanos":"Cuida das pessoas na empresa: contratação, treinamento, salários e ambiente de trabalho.",
+ "Comércio Exterior":"Trabalha com importação e exportação: documentos, câmbio, transporte e negociação com outros países.",
+ "Gestão Financeira":"Controla o dinheiro das empresas: fluxo de caixa, custos, investimentos e crédito.",
+ "Administração":"Formação ampla para gerir empresas e organizações, de finanças a marketing e pessoas.",
+ "Economia":"Estuda como a sociedade produz e usa recursos. Analisa mercados, preços e políticas públicas.",
+ "Ciências Contábeis":"Registra e analisa as finanças das empresas e cuida de impostos e balanços.",
+ "Pedagogia":"Forma professores da educação infantil e dos primeiros anos do fundamental, além de profissionais de gestão escolar.",
+ "Letras":"Estuda línguas e literatura. Forma professores, revisores e tradutores.",
+ "Licenciatura em Matemática":"Forma professores de Matemática para o ensino fundamental e médio.",
+ "Direito":"Estuda as leis. Leva à advocacia e, com concurso, a carreiras como juiz, promotor e delegado.",
+ "Psicologia":"Estuda o comportamento e a mente humana. Atua em clínicas, escolas, empresas e na saúde pública.",
+ "História":"Estuda o passado para entender o presente. Forma professores e pesquisadores e atua em museus e arquivos.",
+ "Geografia":"Estuda o espaço, o ambiente e a sociedade. Forma professores e atua com planejamento urbano e mapas.",
+ "Ciências Sociais":"Estuda a sociedade, a política e a cultura. Atua em pesquisa, ensino e políticas públicas.",
+ "Serviço Social":"Ajuda pessoas e famílias a acessar direitos e serviços públicos, como saúde e assistência social.",
+ "Design de Produto":"Cria objetos do dia a dia, como móveis e embalagens, pensando no uso, na forma e na fabricação.",
+ "Eventos":"Planeja e organiza feiras, festas e congressos, do orçamento ao dia do evento.",
+ "Gastronomia":"Forma profissionais de cozinha: técnicas, criação de pratos e gestão de restaurantes.",
+ "Jornalismo":"Apura e conta notícias em texto, vídeo, áudio e internet.",
+ "Publicidade":"Cria campanhas e conteúdos para divulgar marcas, produtos e ideias.",
+ "Artes Visuais":"Trabalha com criação artística, como pintura, fotografia e arte digital. Pode dar aula ou atuar em produção cultural.",
+ "Música":"Forma músicos, compositores e professores, com teoria e prática de instrumento ou canto.",
+ "Design":"Cria soluções visuais e produtos, como identidades de marcas, telas de aplicativos e objetos.",
+ "Arquitetura e Urbanismo":"Projeta casas, prédios e espaços da cidade, pensando em conforto, beleza e função."
+};
 
 const TB = [
  ["Se você tivesse que escolher só uma destas rotinas de trabalho, qual seria?",
@@ -225,13 +319,17 @@ async function compartilhar(texto, msg){
   catch(e){ msg.textContent = 'Não deu para copiar automaticamente. Use o botão do WhatsApp.'; }
 }
 
-const MAX = {};
-Object.keys(AREAS).forEach(k => MAX[k] = Q.filter(q => q[1].some(o => o[1] === k)).length);
+function maxPorArea(){
+  const m = {};
+  Object.keys(AREAS).forEach(k => m[k] = Q.filter(q => q[1].some(o => o[1] === k)).length);
+  return m;
+}
 
 const sheet = document.getElementById('sheet');
 let i = -1, answers = [], tb = [], nome = "";
 
 function ranking(){
+  const MAX = maxPorArea();
   const count = {}, bonus = {};
   Object.keys(AREAS).forEach(k => { count[k] = 0; bonus[k] = 0; });
   answers.forEach(a => count[a]++);
@@ -283,6 +381,91 @@ function renderDesempate(g){
   sheet.querySelector('.opt')?.focus({preventScroll:true});
 }
 
+function quebrar(ctx, texto, largura){
+  const palavras = texto.split(' '), linhas = []; let atual = '';
+  palavras.forEach(p => {
+    const teste = atual ? atual + ' ' + p : p;
+    if (ctx.measureText(teste).width > largura && atual) { linhas.push(atual); atual = p; } else atual = teste;
+  });
+  if (atual) linhas.push(atual);
+  return linhas;
+}
+function retangulo(ctx, x, y, w, h, r, cor){
+  ctx.fillStyle = cor; ctx.beginPath();
+  ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); ctx.fill();
+}
+async function gerarCard(top, out, msg, botao){
+  botao.disabled = true;
+  try { await Promise.all(['800 80px "Bricolage Grotesque"','700 40px "Atkinson Hyperlegible"','400 40px "Atkinson Hyperlegible"'].map(f => document.fonts.load(f))); } catch(e){}
+  const W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  const AZUL = '#1f5f8b', TINTA = '#14232e', CINZA = '#5b6f7c', TRILHO = '#e2ecf2', AMARELO = '#ffd33d';
+  const DISP = '"Bricolage Grotesque", "Segoe UI", sans-serif', CORPO = '"Atkinson Hyperlegible", "Segoe UI", sans-serif';
+  x.fillStyle = AZUL; x.fillRect(0, 0, W, H);
+  x.textBaseline = 'alphabetic';
+  x.fillStyle = '#ffffff'; x.font = '700 34px ' + CORPO;
+  x.fillText('BÚSSOLA DE CURSOS  ·  PROVÃO PAULISTA', 90, 130);
+  const cx = 70, cy = 180, cw = W - 140, ch = 1440, pad = 70, larg = cw - pad * 2;
+  retangulo(x, cx, cy, cw, ch, 44, '#ffffff');
+  let y = cy + 120;
+  x.fillStyle = CINZA; x.font = '400 40px ' + CORPO;
+  x.fillText(nome ? 'Resultado de ' + nome : 'Meu resultado', cx + pad, y);
+  y += 90;
+  x.fillStyle = TINTA; x.font = '800 84px ' + DISP;
+  quebrar(x, 'Minhas áreas de afinidade', larg).forEach(l => { x.fillText(l, cx + pad, y); y += 92; });
+  y += 30;
+  top.forEach((r, idx) => {
+    const A = AREAS[r.k];
+    x.font = '700 30px ' + CORPO;
+    const etiqueta = (idx === 0 ? '1ª' : '2ª') + ' AFINIDADE';
+    const ew = x.measureText(etiqueta).width + 36;
+    retangulo(x, cx + pad, y, ew, 52, 10, AMARELO);
+    x.fillStyle = TINTA; x.fillText(etiqueta, cx + pad + 18, y + 37);
+    y += 120;
+    x.font = '800 64px ' + DISP;
+    const linhas = quebrar(x, A.nome, larg - 190);
+    linhas.forEach((l, k) => { x.fillStyle = TINTA; x.fillText(l, cx + pad, y + k * 72); });
+    x.font = '800 76px ' + DISP; x.fillStyle = AZUL; x.textAlign = 'right';
+    x.fillText(r.p + '%', cx + cw - pad, y); x.textAlign = 'left';
+    y += (linhas.length - 1) * 72 + 46;
+    retangulo(x, cx + pad, y, larg, 26, 13, TRILHO);
+    if (r.p > 0) retangulo(x, cx + pad, y, Math.max(26, larg * r.p / 100), 26, 13, idx === 0 ? AZUL : '#5b8fb3');
+    y += 110;
+  });
+  x.fillStyle = CINZA; x.font = '700 32px ' + CORPO;
+  x.fillText('CURSOS PARA PESQUISAR', cx + pad, y); y += 62;
+  const exemplos = [].concat(...Object.values(AREAS[top[0].k].cursos).map(t => t.split(', '))).filter((v, k, a) => a.indexOf(v) === k).slice(0, 4);
+  x.fillStyle = TINTA; x.font = '400 42px ' + CORPO;
+  exemplos.forEach(e => { quebrar(x, '• ' + e, larg).forEach(l => { if (y < cy + ch - 50) { x.fillText(l, cx + pad, y); y += 56; } }); });
+  x.fillStyle = '#ffffff'; x.font = '700 40px ' + CORPO;
+  x.fillText('Faça o teste também:', 90, 1720);
+  x.font = '800 54px ' + DISP;
+  x.fillText('bussola-de-cursos.onrender.com', 90, 1790);
+  x.font = '400 34px ' + CORPO;
+  x.fillText('Escolha dos cursos até 27/11', 90, 1850);
+  c.toBlob(blob => {
+    botao.disabled = false;
+    if (!blob) { msg.textContent = 'Não deu para gerar a imagem neste navegador.'; return; }
+    const url = URL.createObjectURL(blob);
+    const arquivo = new File([blob], 'bussola-de-cursos.png', {type:'image/png'});
+    out.innerHTML = '';
+    const img = el('img', {src:url, alt:'Imagem do resultado para compartilhar'});
+    const acoes = el('div', {className:'share-row'});
+    if (navigator.canShare && navigator.canShare({files:[arquivo]})) {
+      const bs = el('button', {className:'btn primary', type:'button'}, 'Postar no story');
+      bs.onclick = async () => { try { await navigator.share({files:[arquivo], title:'Bússola de Cursos'}); contar('compartilhou-imagem','Compartilhou imagem'); } catch(e){} };
+      acoes.append(bs);
+    }
+    const dl = el('a', {className:'btn', href:url, download:'bussola-de-cursos.png'}, 'Baixar imagem');
+    dl.addEventListener('click', () => contar('baixou-imagem','Baixou imagem'));
+    acoes.append(dl);
+    out.append(img, acoes);
+    out.hidden = false;
+    contar('gerou-imagem','Gerou imagem');
+  }, 'image/png');
+}
+
 function el(tag, attrs={}, html=""){const e=document.createElement(tag);Object.assign(e,attrs);if(html)e.innerHTML=html;return e;}
 
 function start(){
@@ -292,12 +475,22 @@ function start(){
   n.append(el('label',{htmlFor:'nome'},"Seu primeiro nome (opcional)"));
   const inp=el('input',{id:'nome',type:'text',autocomplete:'off',placeholder:'Ex.: Ana',value:nome});
   n.append(inp);
+  const m=el('div',{className:'mode',role:'radiogroup'});
+  m.setAttribute('aria-label','Onde você estuda');
+  m.append(el('span',{className:'mode-label'},"Você está…"));
+  [['em',"No ensino médio regular (3ª série)"],['eja',"Na EJA (Educação de Jovens e Adultos)"]].forEach(([v,t],k)=>{
+    const b=el('button',{type:'button',className:'opt'+(modo===v?' sel':'')});
+    b.setAttribute('role','radio');b.setAttribute('aria-checked',modo===v);
+    b.innerHTML='<span class="bubble">'+"AB"[k]+'</span><span>'+t+'</span>';
+    b.onclick=()=>{modo=v;[...m.querySelectorAll('.opt')].forEach(c=>{c.classList.remove('sel');c.setAttribute('aria-checked','false');});b.classList.add('sel');b.setAttribute('aria-checked','true');};
+    m.append(b);
+  });
   const nav=el('div',{className:'nav'});
   const go=el('button',{className:'btn primary',type:'button'},"Começar o teste");
-  go.onclick=()=>{nome=inp.value.trim();i=0;answers=[];tb=[];contar('teste-iniciado','Teste iniciado');render();};
+  go.onclick=()=>{nome=inp.value.trim();Q=modo==='eja'?Q_EJA:Q_EM;i=0;answers=[];tb=[];contar('teste-iniciado','Teste iniciado');contar('modo/'+modo,modo==='eja'?'Versão EJA':'Versão ensino médio');render();};
   inp.addEventListener('keydown',e=>{if(e.key==='Enter')go.click();});
   nav.append(el('span'),go);
-  sheet.append(h,n,nav);
+  sheet.append(h,n,m,nav);
 }
 
 function render(){
@@ -342,19 +535,45 @@ function result(){
   top.forEach((r,idx)=>{
     const A=AREAS[r.k];
     const s=el('div',{className:'area'});
-    let dl=`<dl class="inst">`;
-    for(const [inst,c] of Object.entries(A.cursos)) dl+=`<div><dt>${inst}</dt><dd>${c}</dd></div>`;
-    dl+=`</dl>`;
-    s.innerHTML=`<h3>${A.nome}<span class="tag">${idx===0?"1ª afinidade":"2ª afinidade"}</span></h3><p>${A.desc}</p>${dl}`;
+    s.innerHTML=`<h3>${A.nome}<span class="tag">${idx===0?"1ª afinidade":"2ª afinidade"}</span></h3><p>${A.desc}</p><p class="hint">Toque num curso para ver o que esse profissional faz.</p>`;
+    const dl=el('dl',{className:'inst'});
+    const info=el('p',{className:'course-info'});info.hidden=true;info.setAttribute('aria-live','polite');
+    for(const [inst,c] of Object.entries(A.cursos)){
+      const row=el('div');row.append(el('dt',{},inst));
+      const dd=el('dd',{className:'chips'});
+      c.split(', ').forEach(nomeCurso=>{
+        const b=el('button',{type:'button',className:'chip'},nomeCurso);
+        b.setAttribute('aria-pressed','false');
+        b.onclick=()=>{
+          const aberto=b.getAttribute('aria-pressed')==='true';
+          s.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed','false'));
+          if(aberto){info.hidden=true;return;}
+          b.setAttribute('aria-pressed','true');
+          info.innerHTML='<strong>'+nomeCurso+':</strong> '+(INFO[nomeCurso]||'Pesquise a grade desse curso no site da instituição.');
+          info.hidden=false;
+          contar('curso/'+nomeCurso,'Viu o curso '+nomeCurso);
+        };
+        dd.append(b);
+      });
+      row.append(dd);dl.append(row);
+    }
+    s.append(dl,info);
     sheet.append(s);
   });
   const talk=el('div',{className:'talk'});
   talk.innerHTML=`<strong>Para conversar com o professor</strong><ul>
     <li>Algum desses cursos te surpreendeu? Qual você nunca tinha ouvido falar?</li>
     <li>Você prefere um curso mais curto e prático (tecnólogo, Fatec) ou um bacharelado mais longo? <a href=\"#tipos\" onclick=\"document.getElementById('tipos').open=true\">Veja a diferença</a></li>
-    <li>Consegue estudar presencial, ou o EAD da Univesp encaixa melhor na sua rotina?</li>
+    <li>${modo==='eja'?'Um curso à noite ou o EAD da Univesp encaixa na sua rotina de trabalho?':'Consegue estudar presencial, ou o EAD da Univesp encaixa melhor na sua rotina?'}</li>
     <li>Qual campus fica viável pra você ir todo dia?</li></ul>`;
   sheet.append(talk);
+  const portal=el('div',{className:'portal'});
+  portal.innerHTML='<p><strong>Já sabe o que quer?</strong> Faça sua escolha de até 4 cursos na área do estudante do Provão Paulista.<br><small>Prazo: até 27/11. Quem não escolher fica fora da disputa pelas vagas.</small></p>';
+  const pl=el('a',{className:'btn primary',href:PORTAL_URL,target:'_blank',rel:'noopener'},"Ir para o Portal de Escolhas →");
+  pl.style.justifySelf='start';
+  pl.addEventListener('click',()=>contar('foi-ao-portal','Foi ao Portal de Escolhas'));
+  portal.append(pl);
+  sheet.append(portal);
   const sh=el('div',{className:'share'});
   const texto=textoResultado(top);
   const row=el('div',{className:'share-row'});
@@ -363,12 +582,15 @@ function result(){
   bShare.onclick=()=>compartilhar(texto,msg);
   const wa=el('a',{className:'btn',href:'https://wa.me/?text='+encodeURIComponent(texto),target:'_blank',rel:'noopener'},"Enviar no WhatsApp");
   wa.addEventListener('click',()=>contar('compartilhou-whatsapp','Enviou no WhatsApp'));
-  row.append(bShare,wa);
-  sh.append(row,msg);
+  const bCard=el('button',{className:'btn',type:'button'},"Gerar imagem para o story");
+  row.append(bShare,wa,bCard);
+  const out=el('div',{className:'card-out'});out.hidden=true;
+  bCard.onclick=()=>gerarCard(top,out,msg,bCard);
+  sh.append(row,msg,out);
   sheet.append(sh);
   const nav=el('div',{className:'nav'});
   const again=el('button',{className:'btn',type:'button'},"Refazer");
-  again.onclick=()=>{i=0;answers=[];tb=[];render();};
+  again.onclick=()=>{i=0;answers=[];tb=[];render();window.scrollTo({top:0});};
   const nextS=el('button',{className:'btn',type:'button'},"Próximo aluno");
   nextS.onclick=()=>{nome="";i=-1;answers=[];tb=[];start();window.scrollTo({top:0});};
   nav.append(again,nextS);
