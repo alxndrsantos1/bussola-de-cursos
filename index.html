@@ -74,6 +74,25 @@ button.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .tie-note{margin:0;color:var(--muted)}
 .tie-note strong{color:var(--ink)}
 .fine{font-size:13px;color:var(--muted);margin:0}
+.countdown{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--paper);border:1.5px solid var(--ink);border-radius:12px;padding:10px 14px;justify-self:start}
+.countdown .num{font-family:var(--display);font-weight:800;font-size:30px;line-height:1;font-variant-numeric:tabular-nums;background:var(--mark);color:var(--mark-ink);border-radius:8px;padding:4px 10px}
+.countdown p{margin:0;font-size:15px;line-height:1.3}
+.countdown p small{display:block;color:var(--muted);font-size:13px}
+.share{display:grid;gap:10px;border-top:1px solid var(--line);padding-top:16px}
+.share-row{display:flex;gap:10px;flex-wrap:wrap}
+a.btn{font-weight:700;border-radius:10px;padding:11px 18px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);text-decoration:none;display:inline-block}
+a.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.share-msg{margin:0;font-size:14px;color:var(--accent);font-weight:700;min-height:1.3em}
+.types{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:4px 22px}
+.types summary{cursor:pointer;font-family:var(--display);font-weight:700;font-size:20px;padding:14px 0;list-style-position:outside}
+.types summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.types-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding-bottom:20px}
+.type{display:grid;gap:6px;align-content:start;border-top:3px solid var(--accent);padding-top:10px}
+.type h3{font-family:var(--display);font-size:19px;margin:0}
+.type .dur{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.type p{margin:0;font-size:15px}
+.types-note{margin:0 0 18px;font-size:14px;color:var(--muted)}
+@media (max-width:620px){.types-grid{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:460px){.inst div{grid-template-columns:minmax(0,1fr);gap:0}.sheet{padding:18px}}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
 </style>
@@ -102,7 +121,37 @@ function contar(path, title){
     <p class="lede">12 perguntas rápidas. Não existe resposta certa: marque a opção que mais tem a ver com você, mesmo que nenhuma seja perfeita.</p>
   </header>
 
+  <div class="countdown" id="countdown" hidden>
+    <span class="num" id="cd-num"></span>
+    <p id="cd-txt"></p>
+  </div>
+
   <section class="sheet" id="sheet" aria-live="polite"></section>
+
+  <details class="types" id="tipos">
+    <summary>Tecnólogo, bacharelado ou licenciatura?</summary>
+    <div class="types-grid">
+      <div class="type">
+        <h3>Tecnólogo</h3>
+        <span class="dur">2 a 3 anos</span>
+        <p>Curso mais curto e prático, focado em uma área específica do mercado de trabalho. É graduação de nível superior: dá diploma e permite fazer pós-graduação.</p>
+        <p><strong>Onde:</strong> Fatecs.</p>
+      </div>
+      <div class="type">
+        <h3>Bacharelado</h3>
+        <span class="dur">4 a 6 anos</span>
+        <p>Formação mais ampla e teórica, que prepara para várias funções numa área. É o caminho para profissões como engenharia, direito, enfermagem e administração.</p>
+        <p><strong>Onde:</strong> USP, Unesp, Unicamp e alguns cursos da Univesp.</p>
+      </div>
+      <div class="type">
+        <h3>Licenciatura</h3>
+        <span class="dur">cerca de 4 anos</span>
+        <p>Forma professores para dar aula na educação básica. Pedagogia, Letras e Matemática são exemplos comuns.</p>
+        <p><strong>Onde:</strong> Univesp, USP, Unesp e Unicamp.</p>
+      </div>
+    </div>
+    <p class="types-note">A duração exata muda de curso para curso. Confira no Portal de Escolhas antes de decidir.</p>
+  </details>
 
   <p class="fine">Este teste é um ponto de partida para conversa, não um diagnóstico. Os cursos citados são exemplos; a oferta muda por campus e cidade, então confira tudo no Portal de Escolhas do Provão Paulista.</p>
 </div>
@@ -144,6 +193,38 @@ const TB = [
  ["Última pergunta: qual destas frases mais parece com você?",
   {T:"Gosto de entender a lógica por trás das coisas",E:"Gosto de ver o resultado físico do que eu faço",S:"Fico bem quando cuido de algo vivo",G:"Gosto de colocar ordem e fazer acontecer",H:"Gosto de gente e de conversar",C:"Gosto de me expressar e criar coisas novas"}]
 ];
+/* Contagem regressiva até 27/11/2026 (horário de Brasília) */
+(function(){
+  const box = document.getElementById('countdown');
+  if (!box) return;
+  const agoraSP = new Date(Date.now() - 3 * 3600e3);
+  const hoje = Date.UTC(agoraSP.getUTCFullYear(), agoraSP.getUTCMonth(), agoraSP.getUTCDate());
+  const dias = Math.round((Date.UTC(2026, 10, 27) - hoje) / 864e5);
+  const num = document.getElementById('cd-num'), txt = document.getElementById('cd-txt');
+  if (dias > 1) { num.textContent = dias; txt.innerHTML = 'dias para escolher seus cursos<small>O prazo do Provão Paulista termina em 27/11</small>'; }
+  else if (dias === 1) { num.textContent = '1'; txt.innerHTML = 'dia para escolher seus cursos<small>Amanhã, 27/11, é o último dia</small>'; }
+  else if (dias === 0) { num.textContent = 'Hoje'; txt.innerHTML = 'é o último dia para escolher seus cursos<small>Não deixe para a última hora</small>'; }
+  else { num.textContent = '✓'; txt.innerHTML = 'O prazo de escolha terminou em 27/11<small>Fique de olho nas datas de resultado e matrícula</small>'; }
+  box.hidden = false;
+})();
+
+const SITE_URL = 'https://bussola-de-cursos.onrender.com';
+function textoResultado(top){
+  return (nome ? 'Resultado de ' + nome + ' na' : 'Fiz o teste') + ' Bússola de Cursos 🧭\n'
+    + '1ª afinidade: ' + AREAS[top[0].k].nome + ' (' + top[0].p + '%)\n'
+    + '2ª afinidade: ' + AREAS[top[1].k].nome + ' (' + top[1].p + '%)\n'
+    + 'Faça também: ' + SITE_URL;
+}
+async function compartilhar(texto, msg){
+  contar('compartilhou', 'Compartilhou resultado');
+  if (navigator.share) {
+    try { await navigator.share({title:'Bússola de Cursos', text:texto}); return; }
+    catch(e){ if (e && e.name === 'AbortError') return; }
+  }
+  try { await navigator.clipboard.writeText(texto); msg.textContent = 'Resultado copiado! Agora é só colar onde quiser.'; }
+  catch(e){ msg.textContent = 'Não deu para copiar automaticamente. Use o botão do WhatsApp.'; }
+}
+
 const MAX = {};
 Object.keys(AREAS).forEach(k => MAX[k] = Q.filter(q => q[1].some(o => o[1] === k)).length);
 
@@ -270,14 +351,25 @@ function result(){
   const talk=el('div',{className:'talk'});
   talk.innerHTML=`<strong>Para conversar com o professor</strong><ul>
     <li>Algum desses cursos te surpreendeu? Qual você nunca tinha ouvido falar?</li>
-    <li>Você prefere um curso mais curto e prático (tecnólogo, Fatec) ou um bacharelado mais longo?</li>
+    <li>Você prefere um curso mais curto e prático (tecnólogo, Fatec) ou um bacharelado mais longo? <a href=\"#tipos\" onclick=\"document.getElementById('tipos').open=true\">Veja a diferença</a></li>
     <li>Consegue estudar presencial, ou o EAD da Univesp encaixa melhor na sua rotina?</li>
     <li>Qual campus fica viável pra você ir todo dia?</li></ul>`;
   sheet.append(talk);
+  const sh=el('div',{className:'share'});
+  const texto=textoResultado(top);
+  const row=el('div',{className:'share-row'});
+  const msg=el('p',{className:'share-msg',role:'status'});
+  const bShare=el('button',{className:'btn primary',type:'button'},"Compartilhar resultado");
+  bShare.onclick=()=>compartilhar(texto,msg);
+  const wa=el('a',{className:'btn',href:'https://wa.me/?text='+encodeURIComponent(texto),target:'_blank',rel:'noopener'},"Enviar no WhatsApp");
+  wa.addEventListener('click',()=>contar('compartilhou-whatsapp','Enviou no WhatsApp'));
+  row.append(bShare,wa);
+  sh.append(row,msg);
+  sheet.append(sh);
   const nav=el('div',{className:'nav'});
   const again=el('button',{className:'btn',type:'button'},"Refazer");
   again.onclick=()=>{i=0;answers=[];tb=[];render();};
-  const nextS=el('button',{className:'btn primary',type:'button'},"Próximo aluno");
+  const nextS=el('button',{className:'btn',type:'button'},"Próximo aluno");
   nextS.onclick=()=>{nome="";i=-1;answers=[];tb=[];start();window.scrollTo({top:0});};
   nav.append(again,nextS);
   sheet.append(nav);
