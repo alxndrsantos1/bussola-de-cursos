@@ -5,52 +5,63 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bússola de Cursos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 <style>
 /* Layout: uma "folha de respostas" centralizada; uma pergunta por vez, marcação estilo gabarito; resultado em ficha */
+/* Visual alinhado à página central: indigo, cantos arredondados, botões pill */
 :root{
-  --bg:#eef3f6; --paper:#ffffff; --ink:#14232e; --muted:#5b6f7c; --line:#cfdbe3;
-  --accent:#1f5f8b; --mark:#ffd33d; --mark-ink:#14232e; --soft:#e2ecf2;
-  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
-  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --bg:#f8fafc; --paper:#ffffff; --ink:#0f172a; --muted:#475569; --line:#e2e8f0;
+  --accent:#4f46e5; --accent2:#4338ca; --mark:#4f46e5; --mark-ink:#ffffff; --soft:#eef2ff;
+  --display:"Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+  --body:"Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+  color-scheme:light;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0f171d; --paper:#17232c; --ink:#e6eef3; --muted:#93a8b6; --line:#2a3b47;
-  --accent:#7cb8e0; --mark:#f2c623; --mark-ink:#14232e; --soft:#1f2f3a; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0f171d; --paper:#17232c; --ink:#e6eef3; --muted:#93a8b6; --line:#2a3b47;
-  --accent:#7cb8e0; --mark:#f2c623; --mark-ink:#14232e; --soft:#1f2f3a; color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
-.wrap{max-width:680px;margin:0 auto;display:grid;gap:20px}
+body{margin:0;background:linear-gradient(135deg,#eef2ff 0%,#fff 50%,#faf5ff 100%) fixed;color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body::before,body::after{content:"";position:fixed;z-index:-1;width:384px;height:384px;border-radius:50%;filter:blur(64px);pointer-events:none}
+body::before{left:-96px;top:-96px;background:rgba(199,210,254,.5)}
+body::after{right:-96px;top:160px;background:rgba(233,213,255,.5)}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;height:65px;padding:0 max(20px,env(safe-area-inset-left,0px));background:rgba(255,255,255,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.7)}
+.brand{display:flex;align-items:center;gap:12px;color:var(--ink);text-decoration:none;font-weight:800;font-size:18px;letter-spacing:-.01em}
+.logo{width:40px;height:40px;border-radius:16px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(79,70,229,.25);flex:none}
+.logo svg{width:22px;height:22px}
+.navlink{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:99px;background:var(--soft);color:var(--accent2);font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap}
+.navlink:hover{background:#e0e7ff}
+.navlink svg{width:16px;height:16px}
+@media (max-width:560px){.brand{font-size:16px}.navlink span{display:none}.navlink{padding:8px 10px}}
+.wrap{max-width:712px;margin:0 auto;display:grid;gap:20px;padding:28px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
+.foot{max-width:712px;margin:0 auto;padding:4px 16px 36px;color:var(--muted);font-size:14px;text-align:center}
+.foot strong{color:var(--ink);font-weight:600}
 header{display:grid;gap:6px}
-.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
-h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,7vw,44px);line-height:1.05;margin:0;text-wrap:balance}
-h1 span{background:linear-gradient(transparent 58%,var(--mark) 58%);padding:0 .1em;color:inherit}
+.eyebrow{justify-self:start;font-size:13px;color:var(--accent2);font-weight:700;background:#fff;padding:6px 14px;border-radius:99px;box-shadow:0 1px 2px rgba(15,23,42,.06);border:1px solid var(--line)}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,7vw,44px);line-height:1.1;margin:0;text-wrap:balance;letter-spacing:-.02em}
+h1 span{color:var(--accent)}
 .lede{color:var(--muted);margin:0;max-width:60ch}
-.sheet{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:22px;display:grid;gap:18px}
+.sheet{background:var(--paper);border:1px solid #f1f5f9;border-radius:28px;padding:26px;display:grid;gap:18px;box-shadow:0 10px 30px rgba(79,70,229,.08)}
 .progress{display:flex;align-items:center;gap:12px;font-variant-numeric:tabular-nums;font-size:14px;color:var(--muted)}
-.bar{flex:1;height:6px;background:var(--soft);border-radius:99px;overflow:hidden}
+.bar{flex:1;height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
 h2{font-family:var(--display);font-weight:700;font-size:clamp(21px,4.6vw,26px);line-height:1.2;margin:0;text-wrap:balance}
 .opts{display:grid;gap:10px}
 .opt{display:flex;gap:14px;align-items:center;text-align:left;width:100%;font:inherit;color:var(--ink);
-  background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:13px 14px;cursor:pointer;transition:border-color .15s,background .15s}
+  background:var(--paper);border:1.5px solid var(--line);border-radius:20px;padding:14px 16px;cursor:pointer;transition:border-color .15s,background .15s}
 .opt:hover{border-color:var(--accent)}
 .opt:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .bubble{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--muted);display:grid;place-items:center;
   font-family:var(--display);font-weight:700;font-size:14px;color:var(--muted)}
-.opt.sel{border-color:var(--ink);background:var(--soft)}
+.opt.sel{border-color:var(--accent);background:var(--soft)}
 .opt.sel .bubble{background:var(--mark);border-color:var(--mark);color:var(--mark-ink)}
 .nav{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
-button.btn{font:inherit;font-weight:700;border-radius:10px;padding:11px 18px;cursor:pointer;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
-button.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+button.btn{font:inherit;font-weight:700;border-radius:99px;padding:11px 22px;cursor:pointer;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);transition:background .2s,border-color .2s}
+button.btn:hover{border-color:var(--accent)}
+button.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.btn.primary:hover{background:var(--accent2);border-color:var(--accent2)}
 button.btn:disabled{opacity:.4;cursor:not-allowed}
 button.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .name{display:grid;gap:6px}
 .name label{font-size:13px;font-weight:700;color:var(--muted)}
-.name input{font:inherit;padding:11px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
+.name input{font:inherit;padding:11px 16px;border-radius:99px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
 .name input:focus{outline:3px solid var(--accent);outline-offset:1px}
 .result-head{display:grid;gap:4px}
 .result-head p{margin:0;color:var(--muted)}
@@ -62,29 +73,30 @@ button.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .score b{font-variant-numeric:tabular-nums;text-align:right}
 .area{border-top:1px solid var(--line);padding-top:16px;display:grid;gap:10px}
 .area h3{font-family:var(--display);font-size:22px;margin:0;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
-.tag{font-family:var(--body);font-size:12px;letter-spacing:.08em;text-transform:uppercase;background:var(--mark);color:var(--mark-ink);padding:2px 8px;border-radius:4px;font-weight:700}
+.tag{font-family:var(--body);font-size:12px;letter-spacing:.04em;background:#ede9fe;color:#6d28d9;padding:3px 12px;border-radius:99px;font-weight:700}
 .area p{margin:0;max-width:62ch}
 .inst{display:grid;gap:8px}
 .inst div{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px;font-size:15px}
 .inst dt{font-weight:700;color:var(--accent)}
 .inst dd{margin:0}
-.talk{background:var(--soft);border-radius:10px;padding:14px 16px;display:grid;gap:6px}
+.talk{background:var(--soft);border-radius:20px;padding:14px 16px;display:grid;gap:6px}
 .talk strong{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .talk ul{margin:0;padding-left:20px;display:grid;gap:4px}
 .tie-note{margin:0;color:var(--muted)}
 .tie-note strong{color:var(--ink)}
 .fine{font-size:13px;color:var(--muted);margin:0}
-.countdown{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--paper);border:1.5px solid var(--ink);border-radius:12px;padding:10px 14px;justify-self:start}
-.countdown .num{font-family:var(--display);font-weight:800;font-size:30px;line-height:1;font-variant-numeric:tabular-nums;background:var(--mark);color:var(--mark-ink);border-radius:8px;padding:4px 10px}
+.countdown{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#fffbeb;border:1px solid #fde68a;border-radius:24px;padding:10px 16px;justify-self:start}
+.countdown .num{font-family:var(--display);font-weight:800;font-size:30px;line-height:1;font-variant-numeric:tabular-nums;background:#fef3c7;color:#b45309;border-radius:14px;padding:4px 12px}
 .countdown p{margin:0;font-size:15px;line-height:1.3}
 .countdown p small{display:block;color:var(--muted);font-size:13px}
 .share{display:grid;gap:10px;border-top:1px solid var(--line);padding-top:16px}
 .share-row{display:flex;gap:10px;flex-wrap:wrap}
-a.btn{font-weight:700;border-radius:10px;padding:11px 18px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);text-decoration:none;display:inline-block}
-a.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+a.btn{font-weight:700;border-radius:99px;padding:11px 22px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);text-decoration:none;display:inline-block}
+a.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+a.btn.primary:hover{background:var(--accent2);border-color:var(--accent2)}
 a.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .share-msg{margin:0;font-size:14px;color:var(--accent);font-weight:700;min-height:1.3em}
-.types{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:4px 22px}
+.types{background:var(--paper);border:1px solid #f1f5f9;border-radius:28px;padding:4px 26px;box-shadow:0 1px 2px rgba(15,23,42,.05)}
 .types summary{cursor:pointer;font-family:var(--display);font-weight:700;font-size:20px;padding:14px 0;list-style-position:outside}
 .types summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .types-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding-bottom:20px}
@@ -96,17 +108,17 @@ a.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .mode{display:grid;gap:8px}
 .mode-label{font-size:13px;font-weight:700;color:var(--muted)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{font:inherit;font-size:14px;line-height:1.3;border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:99px;padding:5px 12px;cursor:pointer;text-align:left}
+.chip{font:inherit;font-size:14px;line-height:1.3;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:99px;padding:5px 12px;cursor:pointer;text-align:left}
 .chip:hover{border-color:var(--accent)}
 .chip:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-.chip[aria-pressed="true"]{background:var(--mark);border-color:var(--mark);color:var(--mark-ink)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
 .hint{font-size:13px;color:var(--muted);margin:0}
-.course-info{background:var(--soft);border-radius:10px;padding:12px 14px;margin:0;font-size:15px}
-.portal{display:grid;gap:10px;border:1.5px solid var(--ink);border-radius:12px;padding:16px}
+.course-info{background:var(--soft);border-radius:20px;padding:12px 14px;margin:0;font-size:15px}
+.portal{display:grid;gap:10px;border:1px solid #c7d2fe;background:var(--soft);border-radius:24px;padding:18px}
 .portal p{margin:0}
 .portal p small{color:var(--muted);font-size:13px}
 .card-out{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
-.card-out img{width:150px;max-width:100%;border-radius:10px;border:1px solid var(--line)}
+.card-out img{width:150px;max-width:100%;border-radius:20px;border:1px solid var(--line)}
 .card-out .share-row{flex-direction:column;align-items:flex-start}
 @media (max-width:620px){.types-grid{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:460px){.inst div{grid-template-columns:minmax(0,1fr);gap:0}.sheet{padding:18px}}
@@ -129,6 +141,13 @@ function contar(path, title){
 </script>
 </head>
 <body>
+<header class="topbar">
+  <a class="brand" href="https://www.ferramentasdoprofessor.com.br/" title="Ferramentas do Professor">
+    <span class="logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span>
+    Bússola de Cursos
+  </a>
+  <a class="navlink" href="https://www.ferramentasdoprofessor.com.br/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg><span>Ferramentas do Professor</span></a>
+</header>
 
 <div class="wrap">
   <header>
@@ -171,6 +190,7 @@ function contar(path, title){
 
   <p class="fine">Este teste é um ponto de partida para conversa, não um diagnóstico. Os cursos citados são exemplos; a oferta muda por campus e cidade, então confira tudo no Portal de Escolhas do Provão Paulista.</p>
 </div>
+<footer class="foot">Desenvolvido por <strong>Prof. Especialista Alexandre Santos</strong></footer>
 
 <script>
 const AREAS = {
@@ -397,11 +417,11 @@ function retangulo(ctx, x, y, w, h, r, cor){
 }
 async function gerarCard(top, out, msg, botao){
   botao.disabled = true;
-  try { await Promise.all(['800 80px "Bricolage Grotesque"','700 40px "Atkinson Hyperlegible"','400 40px "Atkinson Hyperlegible"'].map(f => document.fonts.load(f))); } catch(e){}
+  try { await Promise.all(['800 80px "Plus Jakarta Sans"','700 40px "Plus Jakarta Sans"','400 40px "Plus Jakarta Sans"'].map(f => document.fonts.load(f))); } catch(e){}
   const W = 1080, H = 1920, c = document.createElement('canvas'); c.width = W; c.height = H;
   const x = c.getContext('2d');
-  const AZUL = '#1f5f8b', TINTA = '#14232e', CINZA = '#5b6f7c', TRILHO = '#e2ecf2', AMARELO = '#ffd33d';
-  const DISP = '"Bricolage Grotesque", "Segoe UI", sans-serif', CORPO = '"Atkinson Hyperlegible", "Segoe UI", sans-serif';
+  const AZUL = '#4f46e5', TINTA = '#0f172a', CINZA = '#475569', TRILHO = '#e2e8f0', AMARELO = '#e0e7ff';
+  const DISP = '"Plus Jakarta Sans", "Segoe UI", sans-serif', CORPO = '"Plus Jakarta Sans", "Segoe UI", sans-serif';
   x.fillStyle = AZUL; x.fillRect(0, 0, W, H);
   x.textBaseline = 'alphabetic';
   x.fillStyle = '#ffffff'; x.font = '700 34px ' + CORPO;
@@ -430,7 +450,7 @@ async function gerarCard(top, out, msg, botao){
     x.fillText(r.p + '%', cx + cw - pad, y); x.textAlign = 'left';
     y += (linhas.length - 1) * 72 + 46;
     retangulo(x, cx + pad, y, larg, 26, 13, TRILHO);
-    if (r.p > 0) retangulo(x, cx + pad, y, Math.max(26, larg * r.p / 100), 26, 13, idx === 0 ? AZUL : '#5b8fb3');
+    if (r.p > 0) retangulo(x, cx + pad, y, Math.max(26, larg * r.p / 100), 26, 13, idx === 0 ? AZUL : '#a5b4fc');
     y += 110;
   });
   x.fillStyle = CINZA; x.font = '700 32px ' + CORPO;
